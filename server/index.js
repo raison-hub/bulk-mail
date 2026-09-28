@@ -11,6 +11,12 @@ app.use(cors({ origin: process.env.CLIENT_ORIGIN || "http://localhost:5173" }));
 app.use(express.json({ limit: "1mb" }));
 app.use(morgan("dev"));
 
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection failed:", err.message));
+
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/mail", require("./routes/mail"));
@@ -21,15 +27,11 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ message: "Server error." });
 });
 
-const PORT = process.env.PORT || 5000;
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("MongoDB connected");
-    app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
-    // module.export = true;
-  })
-  .catch((err) => {
-    console.error("MongoDB connection failed:", err.message);
-    process.exit(1);
-  });
+// Run local server if not in Vercel (production) environment
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
+}
+
+// Export the Express API for Vercel Serverless Functions
+module.exports = app;
