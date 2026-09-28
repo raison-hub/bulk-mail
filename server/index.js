@@ -21,12 +21,13 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ message: "Server error." });
 });
 
-const PORT = process.env.PORT || 5000;
+// const PORT = process.env.PORT || 5000;
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
-    app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
+    // app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
+    module.export = true;
   })
   .catch((err) => {
     console.error("MongoDB connection failed:", err.message);
